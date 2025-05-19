@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Notifications</title>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center">Notifications</h2>
+    <div id="user" class="mb-3"></div>
+    <ul id="user-notifications" class="list-group"></ul>
+    <a href="index.html" class="btn btn-secondary mt-3">Logout</a>
+  </div>
+
+  <script>
+    const user = localStorage.getItem("loggedInUser");
+    if (!user || user === "admin") {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("user").innerText = `Logged in as ${user}`;
+
+      const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+      const ul = document.getElementById("user-notifications");
+      notifs.forEach(n => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerText = `${n.timestamp}: ${n.message}`;
+        ul.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
+
