@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center">Admin Dashboard</h2>
+    <div id="admin" class="mb-3"></div>
+
+    <form id="notificationForm" class="mb-4">
+      <input type="text" id="message" class="form-control mb-2" placeholder="New Notification" required />
+      <button type="submit" class="btn btn-primary">Send Notification</button>
+    </form>
+
+    <h4>All Notifications</h4>
+    <ul id="all-notifications" class="list-group"></ul>
+    <a href="index.html" class="btn btn-secondary mt-3">Logout</a>
+  </div>
+
+  <script>
+    const user = localStorage.getItem("loggedInUser");
+    if (!user || user !== "admin") {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("admin").innerText = `Logged in as Admin`;
+
+      const form = document.getElementById("notificationForm");
+      form.onsubmit = function (e) {
+        e.preventDefault();
+        const message = document.getElementById("message").value.trim();
+        if (!message) return;
+
+        const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+        notifs.push({ message: message, timestamp: new Date().toLocaleString() });
+        localStorage.setItem("notifications", JSON.stringify(notifs));
+        location.reload();
+      };
+
+      const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+      const ul = document.getElementById("all-notifications");
+      notifs.forEach(n => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerText = `${n.timestamp}: ${n.message}`;
+        ul.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
