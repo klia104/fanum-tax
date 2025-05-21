@@ -3,34 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <title>User Notifications</title>
-  <link rel="stylesheet" href="css/bootstrap.css" />
-  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
   <div class="container mt-4">
-    <h2 class="text-center">Notifications</h2>
-    <div id="user" class="mb-3"></div>
-    <ul id="user-notifications" class="list-group"></ul>
-    <a href="index.html" class="btn btn-secondary mt-3">Logout</a>
+    <h2 class="text-center mb-4">Notifications</h2>
+
+    <div class="mb-4">
+      <h4>Notification Preferences</h4>
+      <label for="notifType">Notification Type:</label>
+      <select id="notifType" class="form-select mb-2">
+        <option value="in-app">In-App</option>
+        <option value="email">Email</option>
+      </select>
+
+      <label for="notifFreq">Notification Frequency:</label>
+      <select id="notifFreq" class="form-select mb-2">
+        <option value="immediate">Immediate</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+
+      <button id="savePrefs" class="btn btn-primary">Save Preferences</button>
+    </div>
+
+    <div class="mb-4">
+      <h4>Notification History</h4>
+      <ul id="notifHistory" class="list-group"></ul>
+    </div>
   </div>
 
   <script>
-    const user = localStorage.getItem("loggedInUser");
-    if (!user || user === "admin") {
+    const currentUser = localStorage.getItem("loggedInUser");
+    if (!currentUser || currentUser === "admin") {
       window.location.href = "index.html";
-    } else {
-      document.getElementById("user").innerText = `Logged in as ${user}`;
+    }
 
-      const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
-      const ul = document.getElementById("user-notifications");
-      notifs.forEach(n => {
+    const notifTypeSelect = document.getElementById("notifType");
+    const notifFreqSelect = document.getElementById("notifFreq");
+    const savePrefsBtn = document.getElementById("savePrefs");
+    const notifHistory = document.getElementById("notifHistory");
+
+    // Load preferences if stored
+    const userPrefs = JSON.parse(localStorage.getItem("userPrefs") || "{}");
+    if (userPrefs[currentUser]) {
+      notifTypeSelect.value = userPrefs[currentUser].type;
+      notifFreqSelect.value = userPrefs[currentUser].frequency;
+    }
+
+    savePrefsBtn.onclick = () => {
+      const prefs = {
+        type: notifTypeSelect.value,
+        frequency: notifFreqSelect.value
+      };
+      userPrefs[currentUser] = prefs;
+      localStorage.setItem("userPrefs", JSON.stringify(userPrefs));
+      alert("Preferences saved.");
+    };
+
+    // Load notification history
+    const allNotifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+    allNotifs
+      .filter(n => n.user === currentUser)
+      .forEach(n => {
         const li = document.createElement("li");
         li.className = "list-group-item";
-        li.innerText = `${n.timestamp}: ${n.message}`;
-        ul.appendChild(li);
+        li.innerText = `${n.timestamp} - ${n.message}`;
+        notifHistory.appendChild(li);
       });
-    }
   </script>
 </body>
 </html>
-
