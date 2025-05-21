@@ -2,35 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>User Notifications</title>
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="css/main.css">
+  <title>Notification Settings</title>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .sidebar {
+      background-color: #1e4866;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+    }
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+    .sidebar .btn {
+      width: 100%;
+      margin-bottom: 15px;
+      background-color: #446b87;
+      border: none;
+      color: white;
+      font-size: 16px;
+    }
+    .sidebar .btn:hover {
+      background-color: #55809e;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    .main-content {
+      padding: 30px;
+    }
+    .notification-table th,
+    .notification-table td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .form-check {
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container mt-4">
-    <h2 class="text-center mb-4">Notifications</h2>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3 sidebar">
+        <div class="logo">fanum tax</div>
+        <button class="btn">Dashboard</button>
+        <button class="btn">Settings</button>
+        <button class="btn">Error Monitoring</button>
+        <button class="btn">Generate Reports</button>
+        <button class="btn">Logout</button>
+      </div>
 
-    <div class="mb-4">
-      <h4>Notification Preferences</h4>
-      <label for="notifType">Notification Type:</label>
-      <select id="notifType" class="form-select mb-2">
-        <option value="in-app">In-App</option>
-        <option value="email">Email</option>
-      </select>
+      <!-- Main Content -->
+      <div class="col-md-9 main-content">
+        <h2><strong>Notification Settings</strong></h2>
 
-      <label for="notifFreq">Notification Frequency:</label>
-      <select id="notifFreq" class="form-select mb-2">
-        <option value="immediate">Immediate</option>
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-      </select>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="emailNotif" />
+          <label class="form-check-label" for="emailNotif">Receive Email Notification</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="appNotif" />
+          <label class="form-check-label" for="appNotif">Receive In-App Notification</label>
+        </div>
 
-      <button id="savePrefs" class="btn btn-primary">Save Preferences</button>
-    </div>
+        <div class="mb-3">
+          <label for="notifFreq">Frequency</label>
+          <select id="notifFreq" class="form-select w-auto d-inline-block ms-2">
+            <option value="immediate">Immediate</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
 
-    <div class="mb-4">
-      <h4>Notification History</h4>
-      <ul id="notifHistory" class="list-group"></ul>
+        <div class="form-check mb-4">
+          <input class="form-check-input" type="checkbox" id="savePrefsCheck" />
+          <label class="form-check-label" for="savePrefsCheck">Save Preferences</label>
+        </div>
+
+        <h4><strong>Notification History</strong></h4>
+        <table class="table table-bordered notification-table mt-3">
+          <thead class="table-light">
+            <tr>
+              <th>Timestamp</th>
+              <th>Type</th>
+              <th>Message</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="notifHistoryTable">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -40,38 +112,51 @@
       window.location.href = "index.html";
     }
 
-    const notifTypeSelect = document.getElementById("notifType");
+    const emailNotif = document.getElementById("emailNotif");
+    const appNotif = document.getElementById("appNotif");
     const notifFreqSelect = document.getElementById("notifFreq");
-    const savePrefsBtn = document.getElementById("savePrefs");
-    const notifHistory = document.getElementById("notifHistory");
+    const savePrefsCheck = document.getElementById("savePrefsCheck");
+    const notifHistoryTable = document.getElementById("notifHistoryTable");
 
-    // Load preferences if stored
+    // Load preferences
     const userPrefs = JSON.parse(localStorage.getItem("userPrefs") || "{}");
     if (userPrefs[currentUser]) {
-      notifTypeSelect.value = userPrefs[currentUser].type;
+      emailNotif.checked = userPrefs[currentUser].type === "email";
+      appNotif.checked = userPrefs[currentUser].type === "in-app";
       notifFreqSelect.value = userPrefs[currentUser].frequency;
     }
 
-    savePrefsBtn.onclick = () => {
-      const prefs = {
-        type: notifTypeSelect.value,
-        frequency: notifFreqSelect.value
-      };
-      userPrefs[currentUser] = prefs;
-      localStorage.setItem("userPrefs", JSON.stringify(userPrefs));
-      alert("Preferences saved.");
-    };
+    savePrefsCheck.addEventListener("change", () => {
+      if (savePrefsCheck.checked) {
+        const prefs = {
+          type: emailNotif.checked ? "email" : appNotif.checked ? "in-app" : "",
+          frequency: notifFreqSelect.value
+        };
+        userPrefs[currentUser] = prefs;
+        localStorage.setItem("userPrefs", JSON.stringify(userPrefs));
+        alert("Preferences saved.");
+        savePrefsCheck.checked = false;
+      }
+    });
 
-    // Load notification history
+    // Load notifications
     const allNotifs = JSON.parse(localStorage.getItem("notifications") || "[]");
     allNotifs
       .filter(n => n.user === currentUser)
       .forEach(n => {
-        const li = document.createElement("li");
-        li.className = "list-group-item";
-        li.innerText = `${n.timestamp} - ${n.message}`;
-        notifHistory.appendChild(li);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${n.timestamp}</td>
+          <td>${n.type}</td>
+          <td>${n.message}</td>
+          <td><input type="checkbox" /> Read</td>
+        `;
+        notifHistoryTable.appendChild(row);
       });
   </script>
 </body>
 </html>
+
+
+    
+      
