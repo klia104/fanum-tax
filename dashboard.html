@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fanum Tax Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar d-flex flex-column align-items-start">
+        <h2>Welcome to<br><img src="fanum-logo.png" alt="Fanum Tax" style="height: 60px;">anum tax</h2>
+        <div class="my-4 p-2 card-light w-100 text-center">
+          <h5>Outstanding credits:</h5>
+          <p>2910</p>
+        </div>
+        <div class="my-2 p-2 card-light w-100 text-center">
+          <h5>Outstanding debits:</h5>
+          <p>18</p>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="col-md-10">
+        <div class="top-bar d-flex justify-content-between align-items-center">
+          <button class="nav-btn">TAX RETURNS</button>
+          <div>
+            <span class="mx-3">SETTINGS</span>
+            <span>LOGOUT</span>
+          </div>
+        </div>
+
+        <div class="dashboard-section">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="card card-dark p-3">
+                <h5>Current Tax Liabilities:</h5>
+                <p>Revenue: 4000</p>
+                <p>Warranty: 80</p>
+                <p>Taxable: 3920</p>
+                <p>Payable: 1176</p>
+                <p>Net: 2744</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-light p-3">
+                <h5>Payment History:</h5>
+                <div class="row">
+                  <div class="col">Date</div>
+                  <div class="col">Method</div>
+                  <div class="col">Status</div>
+                </div>
+                <div class="row">
+                  <div class="col">17.01.25</div>
+                  <div class="col">Credit</div>
+                  <div class="col">Completed</div>
+                </div>
+                <div class="row">
+                  <div class="col">23.03.25</div>
+                  <div class="col">PayPal</div>
+                  <div class="col">Completed</div>
+                </div>
+                <div class="row">
+                  <div class="col">10.05.25</div>
+                  <div class="col">Apple Pay</div>
+                  <div class="col">Processing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <canvas id="lineChart"></canvas>
+            </div>
+            <div class="col-md-6">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const lineChart = new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: {
+        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        datasets: [{
+          label: '£ amount',
+          data: [120, 90, 130, 140, 120, 80, 100, 110, 130, 160],
+          backgroundColor: 'rgba(31, 75, 104, 0.3)',
+          borderColor: 'rgba(31, 75, 104, 1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    const barChart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+        datasets: [{
+          label: '£ million',
+          data: [40, 20, 30, 18],
+          backgroundColor: 'rgba(31, 75, 104, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => `${value}`
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
