@@ -2,53 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="css/bootstrap.css">
-  <link rel="stylesheet" href="css/main.css">
+  <title>Admin Notifications</title>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
   <div class="container mt-4">
-    <h2 class="text-center">Admin Dashboard</h2>
-    <div id="admin" class="mb-3"></div>
+    <h2 class="text-center mb-4">Admin - Send Notifications</h2>
 
-    <form id="notificationForm" class="mb-4">
-      <input type="text" id="message" class="form-control mb-2" placeholder="New Notification" required />
-      <button type="submit" class="btn btn-primary">Send Notification</button>
-    </form>
+    <div class="mb-3">
+      <label for="notificationMessage" class="form-label">Message</label>
+      <textarea id="notificationMessage" class="form-control" rows="3" required></textarea>
+    </div>
 
-    <h4>All Notifications</h4>
-    <ul id="all-notifications" class="list-group"></ul>
-    <a href="index.html" class="btn btn-secondary mt-3">Logout</a>
+    <div class="mb-3">
+      <label for="targetUser" class="form-label">Send To:</label>
+      <select id="targetUser" class="form-select">
+        <option value="all">All Users</option>
+        <!-- You can dynamically populate user list with JS if needed -->
+        <option value="user1">user1</option>
+        <option value="user2">user2</option>
+      </select>
+    </div>
+
+    <button id="sendNotif" class="btn btn-primary">Send Notification</button>
+
+    <hr />
+    <h4>Sent Notifications</h4>
+    <ul id="sentNotifications" class="list-group"></ul>
   </div>
 
   <script>
-    const user = localStorage.getItem("loggedInUser");
-    if (!user || user !== "admin") {
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("admin").innerText = `Logged in as Admin`;
+    const sendBtn = document.getElementById("sendNotif");
+    const messageBox = document.getElementById("notificationMessage");
+    const targetUserSelect = document.getElementById("targetUser");
+    const sentList = document.getElementById("sentNotifications");
 
-      const form = document.getElementById("notificationForm");
-      form.onsubmit = function (e) {
-        e.preventDefault();
-        const message = document.getElementById("message").value.trim();
-        if (!message) return;
+    sendBtn.onclick = () => {
+      const message = messageBox.value.trim();
+      const target = targetUserSelect.value;
 
-        const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
-        notifs.push({ message: message, timestamp: new Date().toLocaleString() });
-        localStorage.setItem("notifications", JSON.stringify(notifs));
-        location.reload();
-      };
+      if (!message) {
+        alert("Please enter a message.");
+        return;
+      }
 
-      const notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
-      const ul = document.getElementById("all-notifications");
-      notifs.forEach(n => {
+      let notifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+
+      if (target === "all") {
+        const users = Object.keys(JSON.parse(localStorage.getItem("users") || "{}")).filter(u => u !== "admin");
+        users.forEach(user => {
+          notifs.push({
+            user: user,
+            message: message,
+            timestamp: new Date().toLocaleString()
+          });
+        });
+      } else {
+        notifs.push({
+          user: target,
+          message: message,
+          timestamp: new Date().toLocaleString()
+        });
+      }
+
+      localStorage.setItem("notifications", JSON.stringify(notifs));
+      messageBox.value = "";
+      alert("Notification sent!");
+
+      updateSentList();
+    };
+
+    function updateSentList() {
+      const allNotifs = JSON.parse(localStorage.getItem("notifications") || "[]");
+      sentList.innerHTML = "";
+      allNotifs.slice().reverse().forEach(n => {
         const li = document.createElement("li");
         li.className = "list-group-item";
-        li.innerText = `${n.timestamp}: ${n.message}`;
-        ul.appendChild(li);
+        li.innerText = `${n.timestamp} - To: ${n.user} - ${n.message}`;
+        sentList.appendChild(li);
       });
     }
+
+    // Initial load
+    updateSentList();
   </script>
 </body>
 </html>
